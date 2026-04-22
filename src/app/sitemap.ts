@@ -6,21 +6,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: baseUrl,
-      lastModified: new Date(),
+      lastModified: new Date('2024-12-19'),
       changeFrequency: 'weekly',
       priority: 1,
-    },
-    {
-      url: `${baseUrl}/api/preview`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/api/migrate`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.3,
     },
   ]
 }
