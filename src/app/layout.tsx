@@ -1,47 +1,55 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import Script from "next/script";
 import "./globals.css";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mongodb-migrate.vercel.app';
+const siteName = process.env.NEXT_PUBLIC_SITE_NAME || 'MongoDBMigrate';
+const siteDescription = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'Migrate MongoDB data between clusters without terminal commands. No mongodump, no mongorestore. Secure, fast, and selective database migration.';
+
 export const metadata: Metadata = {
-  title: "MongoDBMigrate — MongoDB Migration Tool",
-  description: "Migrate MongoDB data between clusters without terminal commands. No mongodump, no mongorestore. Secure, fast, and selective database migration.",
-  keywords: ["MongoDB", "migration", "database", "mongodump", "mongorestore", "Atlas", "cluster", "data transfer"],
-  authors: [{ name: "MongoDBMigrate" }],
-  creator: "MongoDBMigrate",
-  publisher: "MongoDBMigrate",
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: 'MongoDBMigrate — MongoDB Migration Tool',
+    template: `%s | ${siteName}`,
   },
-  metadataBase: new URL('https://mongodb-migrate.vercel.app'),
-  alternates: {
-    canonical: '/',
-  },
-  openGraph: {
-    title: "MongoDBMigrate — MongoDB Migration Tool",
-    description: "Migrate MongoDB data between clusters without terminal commands. No mongodump, no mongorestore. Secure, fast, and selective database migration.",
-    url: 'https://mongodb-migrate.vercel.app',
-    siteName: 'MongoDBMigrate',
-    locale: 'en_US',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: "MongoDBMigrate — MongoDB Migration Tool",
-    description: "Migrate MongoDB data between clusters without terminal commands. No mongodump, no mongorestore. Secure, fast, and selective database migration.",
-  },
+  description: 'Migrate MongoDB data between clusters without terminal commands. No mongodump, no mongorestore. Secure, fast, and selective database migration.',
+  applicationName: 'MongoDBMigrate',
+  keywords: [
+    'MongoDB',
+    'migration',
+    'database',
+    'mongodump',
+    'mongorestore',
+    'Atlas',
+    'cluster',
+    'data transfer',
+    'database migration',
+    'MongoDB Atlas',
+    'cluster migration',
+    'database transfer',
+    'MongoDB tool',
+    'data migration',
+    'NoSQL migration',
+    'MongoDB backup',
+    'database sync'
+  ],
+  authors: [{ name: 'MongoDBMigrate Team' }],
+  creator: 'MongoDBMigrate',
+  publisher: 'MongoDBMigrate',
   robots: {
     index: true,
     follow: true,
@@ -53,8 +61,33 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: siteUrl,
+    siteName,
+    title: 'MongoDBMigrate — MongoDB Migration Tool',
+    description: 'Migrate MongoDB data between clusters without terminal commands. No mongodump, no mongorestore. Secure, fast, and selective database migration.',
+    images: [
+      {
+        url: `${siteUrl}/og-image.jpg`,
+        width: 1200,
+        height: 630,
+        alt: siteName,
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'MongoDBMigrate — MongoDB Migration Tool',
+    description: 'Migrate MongoDB data between clusters without terminal commands. No mongodump, no mongorestore. Secure, fast, and selective database migration.',
+    images: [`${siteUrl}/og-image.jpg`],
+  },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
+  },
+  alternates: {
+    canonical: siteUrl,
   },
   icons: {
     icon: [
@@ -80,17 +113,45 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
 };
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": siteName,
+      "url": siteUrl,
+      "description": siteDescription,
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": `${siteUrl}/?q={search_term_string}`,
+        "query-input": "required name=search_term_string"
+      }
+    };
+  
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col"><TooltipProvider>{children}</TooltipProvider></body>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="apple-touch-icon-precomposed" href="/apple-touch-icon-precomposed.png" />
+        <Script id="json-ld" type="application/ld+json">{JSON.stringify(jsonLd)}</Script>
+      </head>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} min-h-full flex flex-col antialiased`}
+      >
+        <TooltipProvider>
+          {children}
+        </TooltipProvider>
+      </body>
     </html>
   );
 }
