@@ -126,6 +126,31 @@
   display: none;
 }
 
+/* Custom scrollbar for database selection */
+.database-list-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  display: block !important;
+}
+
+.database-list-scrollbar::-webkit-scrollbar-track {
+  background: #161b22;
+  border-radius: 3px;
+}
+
+.database-list-scrollbar::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 3px;
+}
+
+.database-list-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #484f58;
+}
+
+.database-list-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #30363d #161b22;
+}
+
 
 @layer utilities {
   .gradient-title {

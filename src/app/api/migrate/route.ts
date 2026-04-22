@@ -27,10 +27,46 @@ export async function POST(req: NextRequest) {
   let dest: MongoClient | null = null;
 
   try {
-    source = new MongoClient(sourceUri);
-    dest = new MongoClient(destinationUri);
-    await source.connect();
-    await dest.connect();
+    source = new MongoClient(sourceUri, {
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 15000,
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 15000,
+      tls: true,
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false,
+      retryWrites: true,
+      retryReads: true,
+      maxIdleTimeMS: 30000,
+      heartbeatFrequencyMS: 10000,
+    });
+    dest = new MongoClient(destinationUri, {
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 15000,
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 15000,
+      tls: true,
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false,
+      retryWrites: true,
+      retryReads: true,
+      maxIdleTimeMS: 30000,
+      heartbeatFrequencyMS: 10000,
+    });
+    
+    try {
+      await source.connect();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to connect.";
+      throw new Error(`Source connection failed: ${message}`);
+    }
+    
+    try {
+      await dest.connect();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to connect.";
+      throw new Error(`Destination connection failed: ${message}`);
+    }
 
     const adminDb = source.db().admin();
     const allDbs = sourceDbName
@@ -63,7 +99,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, results, sourceDb: dbList.join(', '), destDb: destDbName ?? dbList.join(', ') });
   } catch (err: unknown) {
-    console.error("Migration error:", err);
     const message = err instanceof Error ? err.message : "Migration failed.";
     return NextResponse.json({ error: message }, { status: 500 });
   } finally {

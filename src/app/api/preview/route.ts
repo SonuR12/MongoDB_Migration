@@ -25,8 +25,14 @@ export async function POST(req: NextRequest) {
   try {
     client = new MongoClient(sourceUri, {
       maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
+      connectTimeoutMS: 10000,
+      tls: true,
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false,
+      retryWrites: true,
+      retryReads: true,
     });
     await client.connect();
 
@@ -79,9 +85,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, dbName: dbList.join(', '), collections: allDatabases });
   } catch (err: unknown) {
-    console.error("Preview error:", err);
     const message = err instanceof Error ? err.message : "Failed to connect.";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const errorMessage = `Source connection failed: ${message}`;
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   } finally {
     if (client) await client.close();
   }
