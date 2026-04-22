@@ -1,27 +1,22 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
-import { ShieldCheck, Zap, Target, Eye, Database, Check, Square, CheckSquare, RotateCcw, ArrowLeft, ArrowRight } from "lucide-react";
+import { DisclaimerDialog } from "@/components/DisclaimerDialog";
+import { StepIndicator } from "@/components/StepIndicator";
+import { BeforeMigrationSidebar } from "@/components/BeforeMigrationSidebar";
+import { AfterMigrationSidebar } from "@/components/AfterMigrationSidebar";
+import { HeroSection } from "@/components/HeroSection";
+import { InfoCards } from "@/components/InfoCards";
+import { Spinner } from "@/components/Spinner";
+import { Eye, Database, CheckSquare, Square, RotateCcw, ArrowLeft, ArrowRight } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Navbar } from "@/components/Navbar";
 
 type ColPreview = { name: string; collections: number; docs: number };
 type ColResult = { collection: string; docsMigrated: number };
 type Step = "idle" | "previewing" | "previewed" | "migrating" | "done";
-
-
-
-function Spinner() {
-  return (
-    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-    </svg>
-  );
-}
-
-const STEPS = ["Connect", "Select", "Migrate", "Done"];
 
 export default function Home() {
   const [sourceUri, setSourceUri] = useState("");
@@ -31,6 +26,18 @@ export default function Home() {
   const [preview, setPreview] = useState<{ dbName: string; collections: ColPreview[] } | null>(null);
   const [selectedDbs, setSelectedDbs] = useState<Set<string>>(new Set());
   const [results, setResults] = useState<{ results: ColResult[]; sourceDb: string; destDb: string } | null>(null);
+
+  const [showDisclaimer, setShowDisclaimer] = useState(false);
+
+  useEffect(() => {
+    const seen = sessionStorage.getItem("disclaimer_seen");
+    if (!seen) setShowDisclaimer(true);
+  }, []);
+
+  function acceptDisclaimer() {
+    sessionStorage.setItem("disclaimer_seen", "1");
+    setShowDisclaimer(false);
+  }
 
   const stepIndex = { idle: 0, previewing: 0, previewed: 1, migrating: 2, done: 3 }[step];
 
@@ -114,123 +121,15 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-white font-sans">
-      {/* Top Nav */}
-      <nav className="border-b border-[#21262d] px-6 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <svg width="28" height="28" viewBox="0 0 40 40" fill="none">
-            <ellipse cx="20" cy="20" rx="8" ry="18" fill="url(#navleaf)" />
-            <path d="M20 2 C20 2 28 10 28 20 C28 30 20 38 20 38" stroke="#00684A" strokeWidth="1.5" fill="none" />
-            <defs>
-              <linearGradient id="navleaf" x1="12" y1="2" x2="28" y2="38" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stopColor="#00ED64" />
-                <stop offset="100%" stopColor="#00684A" />
-              </linearGradient>
-            </defs>
-          </svg>
-          <span className="font-bold text-lg text-white tracking-tight">MongoMigrate</span>
-          <Badge className="bg-[#00ED64]/10 text-[#00ED64] border border-[#00ED64]/20 text-[10px] px-2 py-0 ml-1">v0.3</Badge>
-        </div>
-        <div className="flex items-center gap-4 text-xs text-[#8a9bb0]">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center gap-1.5 cursor-default">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00ED64] animate-pulse" />
-                <span>Secure · In-memory only</span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent className="bg-[#161b22] border-[#30363d] text-white text-xs">
-              Connection strings are never stored or logged
-            </TooltipContent>
-          </Tooltip>
-        </div>
-      </nav>
+      <DisclaimerDialog open={showDisclaimer} onAccept={acceptDisclaimer} onClose={() => setShowDisclaimer(false)} />
+      <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-[260px_1fr_260px] gap-6">
+        <BeforeMigrationSidebar />
 
-        {/* Left Panel — Before Migration */}
-        <aside className="hidden lg:flex flex-col gap-4 pt-2">
-          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-2 h-2 rounded-full bg-yellow-400" />
-              <span className="text-xs font-bold text-yellow-400 uppercase tracking-widest">Before Migrating</span>
-            </div>
-            <div className="space-y-4">
-              <div className="flex gap-3">
-                <div className="w-5 h-5 rounded-full bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-yellow-400 text-[10px] font-bold">1</span>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-white mb-1">Allow all IPs on Source</p>
-                  <p className="text-[11px] text-[#8a9bb0] leading-relaxed">In Atlas, go to <span className="text-white">Network Access</span> on your source cluster and add <code className="text-yellow-400 bg-yellow-400/10 px-1 rounded">0.0.0.0/0</code> to the IP Access List.</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-5 h-5 rounded-full bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-yellow-400 text-[10px] font-bold">2</span>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-white mb-1">Allow all IPs on Destination</p>
-                  <p className="text-[11px] text-[#8a9bb0] leading-relaxed">Do the same on your <span className="text-white">destination cluster</span> — add <code className="text-yellow-400 bg-yellow-400/10 px-1 rounded">0.0.0.0/0</code> so the migration server can connect.</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-5 h-5 rounded-full bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-yellow-400 text-[10px] font-bold">3</span>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-white mb-1">Check credentials</p>
-                  <p className="text-[11px] text-[#8a9bb0] leading-relaxed">Make sure your DB user has <span className="text-white">read access</span> on source and <span className="text-white">read+write</span> on destination.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-[#161b22] border border-[#21262d] rounded-2xl p-5">
-            <p className="text-xs font-bold text-[#8a9bb0] uppercase tracking-widest mb-3">How to add IP in Atlas</p>
-            <ol className="space-y-2 text-[11px] text-[#8a9bb0] leading-relaxed list-none">
-              <li className="flex gap-2"><span className="text-[#00ED64]">→</span> Open your Atlas project</li>
-              <li className="flex gap-2"><span className="text-[#00ED64]">→</span> Click <span className="text-white mx-1">Network Access</span> in sidebar</li>
-              <li className="flex gap-2"><span className="text-[#00ED64]">→</span> Click <span className="text-white mx-1">+ Add IP Address</span></li>
-              <li className="flex gap-2"><span className="text-[#00ED64]">→</span> Enter <code className="text-yellow-400 bg-yellow-400/10 px-1 rounded">0.0.0.0/0</code> and confirm</li>
-            </ol>
-          </div>
-        </aside>
-
-        {/* Center — main content */}
         <div>
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-white mb-3 tracking-tight">
-            Migrate MongoDB <span className="text-[#00ED64]">without the terminal</span>
-          </h1>
-          <p className="text-[#8a9bb0] text-base max-w-lg mx-auto">
-            No <code className="text-[#00ED64] bg-[#00ED64]/10 px-1 rounded text-sm">mongodump</code>. No <code className="text-[#00ED64] bg-[#00ED64]/10 px-1 rounded text-sm">mongorestore</code>. Just paste, select, and migrate.
-          </p>
-        </div>
-
-        {/* Step Indicator */}
-        <div className="flex items-center justify-center gap-0 mb-10 select-none">
-          {STEPS.map((s, i) => (
-            <div key={s} className="flex items-center">
-              <div className="flex flex-col items-center gap-1">
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
-                  i < stepIndex ? "bg-[#00ED64] border-[#00ED64] text-[#0d1117]"
-                  : i === stepIndex ? "border-[#00ED64] text-[#00ED64] bg-transparent"
-                  : "border-[#30363d] text-[#4a5568] bg-transparent"
-                }`}>
-                  {i < stepIndex ? (
-                    <svg width="12" height="12" viewBox="0 0 10 10" fill="none">
-                      <path d="M1.5 5L4 7.5L8.5 2.5" stroke="#0d1117" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  ) : i + 1}
-                </div>
-                <span className={`text-[10px] ${i === stepIndex ? "text-[#00ED64]" : i < stepIndex ? "text-[#8a9bb0]" : "text-[#4a5568]"}`}>{s}</span>
-              </div>
-              {i < STEPS.length - 1 && (
-                <div className={`w-16 h-px mx-1 mb-4 transition-all ${i < stepIndex ? "bg-[#00ED64]" : "bg-[#30363d]"}`} />
-              )}
-            </div>
-          ))}
-        </div>
+          <HeroSection />
+          <StepIndicator step={step} />
 
         {/* Main Card */}
         <div className="bg-[#161b22] border border-[#30363d] rounded-2xl overflow-hidden shadow-2xl mb-4">
@@ -486,74 +385,9 @@ export default function Home() {
         )}
 
         {/* Info cards */}
-        {step === "idle" && (
-          <div className="grid grid-cols-3 gap-3 mt-6">
-            {[
-              { icon: <ShieldCheck size={20} className="text-[#00ED64]" />, title: "Secure", desc: "Credentials never stored or logged" },
-              { icon: <Zap size={20} className="text-[#00ED64]" />, title: "Fast", desc: "Direct driver connection, no middleman" },
-              { icon: <Target size={20} className="text-[#00ED64]" />, title: "Selective", desc: "Choose exactly which databases to migrate" },
-            ].map((card) => (
-              <div key={card.title} className="bg-[#161b22] border border-[#21262d] rounded-xl p-4 text-center">
-                <div className="flex justify-center mb-2">{card.icon}</div>
-                <p className="text-xs font-semibold text-white mb-1">{card.title}</p>
-                <p className="text-[11px] text-[#4a5568]">{card.desc}</p>
-              </div>
-            ))}
-          </div>
-        )}
+        {step === "idle" && <InfoCards />}
         </div>
-        {/* Right Panel — After Migration */}
-        <aside className="hidden lg:flex flex-col gap-4 pt-2">
-          <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-2 h-2 rounded-full bg-[#00ED64]" />
-              <span className="text-xs font-bold text-[#00ED64] uppercase tracking-widest">After Migrating</span>
-            </div>
-            <div className="space-y-4">
-              <div className="flex gap-3">
-                <div className="w-5 h-5 rounded-full bg-[#00ED64]/10 border border-[#00ED64]/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-[#00ED64] text-[10px] font-bold">1</span>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-white mb-1">Remove <code className="text-yellow-400 bg-yellow-400/10 px-1 rounded">0.0.0.0/0</code> from Source</p>
-                  <p className="text-[11px] text-[#8a9bb0] leading-relaxed">Go back to <span className="text-white">Network Access</span> on your source cluster and delete the <code className="text-yellow-400 bg-yellow-400/10 px-1 rounded">0.0.0.0/0</code> entry.</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-5 h-5 rounded-full bg-[#00ED64]/10 border border-[#00ED64]/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-[#00ED64] text-[10px] font-bold">2</span>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-white mb-1">Remove <code className="text-yellow-400 bg-yellow-400/10 px-1 rounded">0.0.0.0/0</code> from Destination</p>
-                  <p className="text-[11px] text-[#8a9bb0] leading-relaxed">Do the same on your <span className="text-white">destination cluster</span> — remove the open IP and add only your trusted IPs.</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-5 h-5 rounded-full bg-[#00ED64]/10 border border-[#00ED64]/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-[#00ED64] text-[10px] font-bold">3</span>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-white mb-1">Verify your data</p>
-                  <p className="text-[11px] text-[#8a9bb0] leading-relaxed">Open <span className="text-white">MongoDB Compass</span> or Atlas and confirm all collections and documents are present on the destination.</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-5 h-5 rounded-full bg-[#00ED64]/10 border border-[#00ED64]/30 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-[#00ED64] text-[10px] font-bold">4</span>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-white mb-1">Rotate your password</p>
-                  <p className="text-[11px] text-[#8a9bb0] leading-relaxed">Change your DB user password in <span className="text-white">Atlas → Database Access</span> since it was used in a connection string.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-[#2d1b1b] border border-[#f85149]/20 rounded-2xl p-5">
-            <p className="text-xs font-bold text-[#f85149] uppercase tracking-widest mb-3">Security Reminder</p>
-            <p className="text-[11px] text-[#8a9bb0] leading-relaxed">Never leave <code className="text-yellow-400 bg-yellow-400/10 px-1 rounded">0.0.0.0/0</code> open in production. It allows connections from <span className="text-white">any IP in the world</span>.</p>
-          </div>
-        </aside>
+        <AfterMigrationSidebar />
       </main>
     </div>
   );
