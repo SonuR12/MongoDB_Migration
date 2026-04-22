@@ -15,6 +15,7 @@ interface MigrateButtonProps {
   totalDocs: number;
   handleMigrate: () => void;
   preview: { collections: ColPreview[] } | null;
+  isSameCluster?: boolean;
 }
 
 export function MigrateButton({
@@ -25,7 +26,8 @@ export function MigrateButton({
   results,
   totalDocs,
   handleMigrate,
-  preview
+  preview,
+  isSameCluster = false
 }: MigrateButtonProps) {
   // Calculate existing vs new databases
   const selectedDbsArray = Array.from(selectedDbs);
@@ -37,6 +39,7 @@ export function MigrateButton({
   );
   
   const getButtonText = () => {
+    if (isSameCluster) return "Cannot migrate to same cluster";
     if (selectedDbs.size === 0) return "Select databases to migrate";
     
     const existingCount = existingSelected.length;
@@ -63,8 +66,12 @@ export function MigrateButton({
       <div className="p-6 pt-4">
         <button
           onClick={handleMigrate}
-          disabled={!sourceUri || !destinationUri || step === "migrating" || step === "previewing" || step === "done" || selectedDbs.size === 0}
-          className="w-full bg-[#00ED64] text-[#0d1117] font-bold py-3.5 rounded-xl transition-all text-sm tracking-wide flex items-center justify-center gap-1.5 shadow-lg shadow-[#00ED64]/10 enabled:hover:bg-[#00c853] disabled:bg-[#00684A] disabled:pointer-events-none"
+          disabled={!sourceUri || !destinationUri || step === "migrating" || step === "previewing" || step === "done" || selectedDbs.size === 0 || isSameCluster}
+          className={`w-full font-bold py-3.5 rounded-xl transition-all text-sm tracking-wide flex items-center justify-center gap-1.5 shadow-lg ${
+            isSameCluster 
+              ? 'bg-red-500/20 text-red-400 border border-red-500/30 cursor-not-allowed' 
+              : 'bg-[#00ED64] text-[#0d1117] shadow-[#00ED64]/10 enabled:hover:bg-[#00c853] disabled:bg-[#00684A] disabled:pointer-events-none'
+          }`}
         >
           {step === "migrating" ? (
             <><Spinner /> Migrating {selectedDbs.size} database{selectedDbs.size > 1 ? "s" : ""}...</>

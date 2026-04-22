@@ -20,14 +20,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Both connection strings are required." }, { status: 400 });
   }
 
-  const sourceDbName = extractDbName(sourceUri);
-  const destDbName = extractDbName(destinationUri);
+  // Trim both URIs
+  const trimmedSourceUri = sourceUri.trim();
+  const trimmedDestinationUri = destinationUri.trim();
+
+  const sourceDbName = extractDbName(trimmedSourceUri);
+  const destDbName = extractDbName(trimmedDestinationUri);
 
   let source: MongoClient | null = null;
   let dest: MongoClient | null = null;
 
   try {
-    source = new MongoClient(sourceUri, {
+    source = new MongoClient(trimmedSourceUri, {
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 15000,
       socketTimeoutMS: 45000,
@@ -40,7 +44,7 @@ export async function POST(req: NextRequest) {
       maxIdleTimeMS: 30000,
       heartbeatFrequencyMS: 10000,
     });
-    dest = new MongoClient(destinationUri, {
+    dest = new MongoClient(trimmedDestinationUri, {
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 15000,
       socketTimeoutMS: 45000,

@@ -20,10 +20,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Destination URI and source database names are required." }, { status: 400 });
   }
 
+  // Trim the destination URI
+  const trimmedDestinationUri = destinationUri.trim();
+
   let client: MongoClient | null = null;
 
   try {
-    client = new MongoClient(destinationUri, {
+    client = new MongoClient(trimmedDestinationUri, {
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,

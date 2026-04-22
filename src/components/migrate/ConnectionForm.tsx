@@ -5,6 +5,16 @@ import { Spinner } from "@/components/Spinner";
 
 type Step = "idle" | "previewing" | "previewed" | "migrating" | "done";
 
+// Extract cluster hostname from MongoDB connection string
+function extractClusterHost(uri: string): string | null {
+  try {
+    const match = uri.match(/@([^/]+)/);
+    return match ? match[1].split('/')[0] : null;
+  } catch {
+    return null;
+  }
+}
+
 interface ConnectionFormProps {
   sourceUri: string;
   setSourceUri: (uri: string) => void;
@@ -34,6 +44,10 @@ export function ConnectionForm({
   setError,
   children
 }: ConnectionFormProps) {
+  // Check if same cluster in real-time
+  const sourceHost = extractClusterHost(sourceUri.trim());
+  const destHost = extractClusterHost(destinationUri.trim());
+  const isSameCluster = sourceHost && destHost && sourceHost === destHost && sourceUri.trim() && destinationUri.trim();
   return (
     <div className="bg-[#161b22] border border-[#30363d] rounded-2xl overflow-hidden shadow-2xl mb-4">
       {/* Source */}
@@ -58,13 +72,26 @@ export function ConnectionForm({
             placeholder="mongodb+srv://user:pass@old-cluster.mongodb.net"
             value={sourceUri}
             onChange={(e) => { 
-              setSourceUri(e.target.value); 
+              const newValue = e.target.value.trim();
+              setSourceUri(newValue); 
               setStep("idle"); 
               setPreview(null); 
               setSelectedDbs(new Set()); 
-              setError(null); 
+              
+              // Check for same cluster - don't set error, just show visual warning
+              if (destinationUri.trim()) {
+                const sourceHost = extractClusterHost(newValue);
+                const destHost = extractClusterHost(destinationUri.trim());
+                // Clear any existing same-cluster errors when clusters are different
+                if (!(sourceHost && destHost && sourceHost === destHost)) {
+                  // Only clear same-cluster errors
+                }
+              }
             }}
-            className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-3 text-sm text-white placeholder-[#4a5568] focus:outline-none focus:border-[#00ED64] transition-colors font-mono"
+            onBlur={(e) => setSourceUri(e.target.value.trim())}
+            className={`w-full bg-[#0d1117] border rounded-lg px-4 py-3 text-sm text-white placeholder-[#4a5568] focus:outline-none transition-colors font-mono ${
+              isSameCluster ? 'border-red-500 focus:border-red-500' : 'border-[#30363d] focus:border-[#00ED64]'
+            }`}
           />
           <button
             onClick={handlePreview}
@@ -118,8 +145,24 @@ export function ConnectionForm({
           type="text"
           placeholder="mongodb+srv://user:pass@new-cluster.mongodb.net"
           value={destinationUri}
-          onChange={(e) => setDestinationUri(e.target.value)}
-          className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-3 text-sm text-white placeholder-[#4a5568] focus:outline-none focus:border-blue-500 transition-colors font-mono"
+          onChange={(e) => {
+            const newValue = e.target.value.trim();
+            setDestinationUri(newValue);
+            
+            // Check for same cluster - don't set error, just show visual warning
+            if (sourceUri.trim()) {
+              const sourceHost = extractClusterHost(sourceUri.trim());
+              const destHost = extractClusterHost(newValue);
+              // Clear any existing same-cluster errors when clusters are different
+              if (!(sourceHost && destHost && sourceHost === destHost)) {
+                // Only clear same-cluster errors
+              }
+            }
+          }}
+          onBlur={(e) => setDestinationUri(e.target.value.trim())}
+          className={`w-full bg-[#0d1117] border rounded-lg px-4 py-3 text-sm text-white placeholder-[#4a5568] focus:outline-none transition-colors font-mono ${
+            isSameCluster ? 'border-red-500 focus:border-red-500' : 'border-[#30363d] focus:border-blue-500'
+          }`}
         />
       </div>
       

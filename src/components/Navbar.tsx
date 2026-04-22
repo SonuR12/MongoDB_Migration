@@ -13,7 +13,7 @@ export function Navbar() {
           <Image src="/logo.png" alt="MongoDB Logo" width="28" height="28" />
           <span className="font-bold text-lg text-white tracking-tight mr-1">MongoDBMigrate</span>
            <span className="w-1.5 h-1.5 rounded-full bg-[#00ED64] animate-pulse" />
-          <Badge className="bg-[#00ED64]/10 text-[#00ED64] border border-[#00ED64]/20 text-[10px] px-2 py-0">v1.4</Badge>
+          <Badge className="bg-[#00ED64]/10 text-[#00ED64] border border-[#00ED64]/20 text-[10px] px-2 py-0">v1.5</Badge>
         </div>
           <div className="flex flex-col sm:flex-row items-center gap-3">
 

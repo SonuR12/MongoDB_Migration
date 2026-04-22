@@ -44,7 +44,8 @@ export function DisclaimerDialog({ open, onAccept, onClose }: DisclaimerDialogPr
             <AlertTriangle size={18} className="text-yellow-400 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-semibold text-white mb-0.5">Set IP Access to <code className="text-yellow-400 bg-yellow-400/10 px-1 rounded text-xs">0.0.0.0/0</code></p>
-              <p className="text-xs text-[#8a9bb0]">In MongoDB Atlas, go to <span className="text-white">Network Access</span> on <span className="text-white">both</span> source and destination clusters and add <code className="text-yellow-400 bg-yellow-400/10 px-1 rounded text-xs">0.0.0.0/0</code> before migrating.</p>
+              <p className="text-xs text-[#8a9bb0] mb-2">In MongoDB Atlas, go to <span className="text-white">Network Access</span> on <span className="text-white">both</span> source and destination clusters and add <code className="text-yellow-400 bg-yellow-400/10 px-1 rounded text-xs">0.0.0.0/0</code> before migrating.</p>
+              <p className="text-xs text-red-400 font-medium">⚠️ Why 0.0.0.0/0? This app runs on servers with different IP addresses that don't match your computer's IP. We can't predict which IP will be used for your migration.</p>
             </div>
           </div>
 
@@ -52,8 +53,8 @@ export function DisclaimerDialog({ open, onAccept, onClose }: DisclaimerDialogPr
           <div className="flex gap-3 bg-[#0d1117] rounded-xl p-4 border border-[#21262d] mb-1">
             <Lock size={18} className="text-blue-400 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-white mb-0.5">Remove <code className="text-yellow-400 bg-yellow-400/10 px-1 rounded text-xs">0.0.0.0/0</code> after migration</p>
-              <p className="text-xs text-[#8a9bb0]">Once migration is done, <span className="text-white">immediately remove</span> the open IP from both clusters and add only your trusted IPs.</p>
+              <p className="text-sm font-semibold text-white mb-0.5">❗ Remove <code className="text-yellow-400 bg-yellow-400/10 px-1 rounded text-xs">0.0.0.0/0</code> IMMEDIATELY after migration</p>
+              <p className="text-xs text-[#8a9bb0]">Once migration is done, <span className="text-red-400 font-semibold">immediately remove</span> the open IP from both clusters and add only your trusted IPs. Set a reminder if needed!</p>
             </div>
           </div>
 
@@ -67,12 +68,12 @@ export function DisclaimerDialog({ open, onAccept, onClose }: DisclaimerDialogPr
           </div>
         </div>
 
-        {/* <DialogFooter className="bg-[#161b22] border-[#30363d]">
+        {/* <DialogFooter className="bg-[#161b22] border-[#30363d] mt-4">
           <button
             onClick={onAccept}
             className="w-full bg-[#00ED64] hover:bg-[#00c853] text-[#0d1117] font-bold py-3 rounded-lg transition-colors"
           >
-            I Understand, Let&apos;s Migrate
+            I Understand the Security Risks, Let's Migrate
           </button>
         </DialogFooter> */}
       </DialogContent>

@@ -1,4 +1,4 @@
-import { ArrowLeft, RotateCcw } from "lucide-react";
+import { ArrowLeft, RotateCcw, AlertTriangle, Shield } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 type Step = "idle" | "previewing" | "previewed" | "migrating" | "done";
@@ -17,7 +17,7 @@ export function MigrationResults({
   results,
   totalDocs,
   migrateMore,
-  reset
+  reset,
 }: MigrationResultsProps) {
   if (step !== "done" || !results) return null;
 
@@ -29,27 +29,57 @@ export function MigrationResults({
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-[#00ED64]/20 border border-[#00ED64]/40 flex items-center justify-center">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M3 8L6.5 11.5L13 4.5" stroke="#00ED64" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path
+                  d="M3 8L6.5 11.5L13 4.5"
+                  stroke="#00ED64"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </div>
             <div>
-              <p className="text-sm font-bold text-[#00ED64]">Migration Complete</p>
-              <p className="text-xs text-[#8a9bb0]">{results.results.length} collections · {totalDocs.toLocaleString()} documents</p>
+              <p className="text-sm font-bold text-[#00ED64]">
+                Migration Complete
+              </p>
+              <p className="text-xs text-[#8a9bb0]">
+                {results.results.length} collections ·{" "}
+                {totalDocs.toLocaleString()} documents
+              </p>
             </div>
           </div>
-          <Badge className="bg-[#00ED64]/10 text-[#00ED64] border-[#00ED64]/20">Success</Badge>
+          {/* <Badge className="bg-[#00ED64]/10 text-[#00ED64] border-[#00ED64]/20">Success</Badge>\ */}
+
+          <button
+            onClick={migrateMore}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#00ED64]/10 border border-[#00ED64]/30 text-xs text-[#00ED64] hover:bg-[#00ED64]/20 transition-colors font-semibold"
+          >
+            <RotateCcw size={13} />
+            Migrate Others
+          </button>
         </div>
       </div>
 
       {/* Collection results */}
       <div className="divide-y divide-[#21262d] max-h-64 overflow-y-auto">
         {results.results.map((r) => (
-          <div key={r.collection} className="flex items-center justify-between px-6 py-3">
+          <div
+            key={r.collection}
+            className="flex items-center justify-between px-6 py-3"
+          >
             <div className="flex items-center gap-2">
               <svg width="12" height="12" viewBox="0 0 10 10" fill="none">
-                <path d="M1.5 5L4 7.5L8.5 2.5" stroke="#00ED64" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path
+                  d="M1.5 5L4 7.5L8.5 2.5"
+                  stroke="#00ED64"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
-              <span className="text-sm text-white font-mono">{r.collection}</span>
+              <span className="text-sm text-white font-mono">
+                {r.collection}
+              </span>
             </div>
             <Badge className="bg-[#21262d] text-[#8a9bb0] border-[#30363d] text-xs">
               {r.docsMigrated.toLocaleString()} docs
@@ -58,14 +88,35 @@ export function MigrationResults({
         ))}
       </div>
 
-      <div className="px-6 py-4 border-t border-[#21262d] flex items-center justify-between gap-3">
-        <button
+      {/* Security Reminder */}
+      <div className="px-6 py-4 bg-red-950/10 border-t border-red-500/20">
+        <div className="flex items-start gap-3">
+          <AlertTriangle size={16} className="text-red-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-red-400 mb-1">🚨 SECURITY REMINDER</p>
+            <p className="text-xs text-red-300 mb-2">
+              Don't forget to <span className="text-white font-semibold">remove 0.0.0.0/0</span> from your MongoDB Atlas Network Access settings on both clusters!
+            </p>
+            <div className="flex items-center gap-2">
+              <Shield size={12} className="text-blue-400" />
+              <p className="text-xs text-[#8a9bb0]">
+                Go to Atlas → Network Access → Delete the 0.0.0.0/0 entry → Add your trusted IPs only
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* <div className="px-6 py-4 border-t border-[#21262d] flex items-center justify-between gap-3">
+
+         <button
           onClick={migrateMore}
           className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#30363d] text-xs text-[#8a9bb0] hover:text-white hover:border-[#8a9bb0] transition-colors font-semibold"
         >
           <ArrowLeft size={13} />
           Migrate Other Databases
         </button>
+
         <button
           onClick={reset}
           className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#00ED64]/10 border border-[#00ED64]/30 text-xs text-[#00ED64] hover:bg-[#00ED64]/20 transition-colors font-semibold"
@@ -73,7 +124,7 @@ export function MigrationResults({
           <RotateCcw size={13} />
           New Migration
         </button>
-      </div>
+      </div> */}
     </div>
   );
 }

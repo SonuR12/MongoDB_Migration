@@ -20,10 +20,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Source connection string is required." }, { status: 400 });
   }
 
+  // Trim the source URI
+  const trimmedSourceUri = sourceUri.trim();
+
   let client: MongoClient | null = null;
 
   try {
-    client = new MongoClient(sourceUri, {
+    client = new MongoClient(trimmedSourceUri, {
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
@@ -37,7 +40,7 @@ export async function POST(req: NextRequest) {
     await client.connect();
 
     // If no DB name in URI, list all databases and collect all collections
-    const dbName = extractDbName(sourceUri);
+    const dbName = extractDbName(trimmedSourceUri);
     const adminDb = client.db().admin();
     const dbList = dbName
       ? [dbName]

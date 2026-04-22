@@ -15,6 +15,16 @@ type ColPreview = { name: string; collections: number; docs: number; existsInDes
 type ColResult = { collection: string; docsMigrated: number };
 type Step = "idle" | "previewing" | "previewed" | "migrating" | "done";
 
+// Extract cluster hostname from MongoDB connection string
+function extractClusterHost(uri: string): string | null {
+  try {
+    const match = uri.match(/@([^/]+)/);
+    return match ? match[1].split('/')[0] : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function Home() {
   const [sourceUri, setSourceUri] = useState("");
   const [destinationUri, setDestinationUri] = useState("");
@@ -24,8 +34,16 @@ export default function Home() {
   const [selectedDbs, setSelectedDbs] = useState<Set<string>>(new Set());
   const [results, setResults] = useState<{ results: ColResult[]; sourceDb: string; destDb: string } | null>(null);
   const [existingDbs, setExistingDbs] = useState<string[]>([]);
+  const [migrationProgress, setMigrationProgress] = useState(0);
+  const [currentDatabase, setCurrentDatabase] = useState<string>("");
+  const [completedDatabases, setCompletedDatabases] = useState(0);
 
   const [showDisclaimer, setShowDisclaimer] = useState(false);
+  
+  // Check if same cluster
+  const sourceHost = extractClusterHost(sourceUri.trim());
+  const destHost = extractClusterHost(destinationUri.trim());
+  const isSameCluster = Boolean(sourceHost && destHost && sourceHost === destHost && sourceUri.trim() && destinationUri.trim());
 
   useEffect(() => {
     const seen = sessionStorage.getItem("disclaimer_seen");
@@ -94,24 +112,86 @@ export default function Home() {
     setStep("migrating");
     setError(null);
     setResults(null);
+    setMigrationProgress(0);
+    setCurrentDatabase("");
+    setCompletedDatabases(0);
+    
+    const selectedDbsArray = Array.from(selectedDbs);
+    const allResults: ColResult[] = [];
+    
     try {
-      const res = await fetch("/api/migrate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sourceUri, destinationUri, selectedDbs: Array.from(selectedDbs) }),
-      });
-      const data = await res.json();
-      
-      if (res.ok || res.status === 207) {
-        setResults(data);
-        setStep("done");
-        if (data.partialSuccess) {
-          setError(`Warning: ${data.error}`);
+      // Process each database one by one with real API calls
+      for (let i = 0; i < selectedDbsArray.length; i++) {
+        const currentDb = selectedDbsArray[i];
+        setCurrentDatabase(currentDb);
+        setMigrationProgress(0); // Reset to 0% for each database
+        
+        // Simulate progress while making the actual API call
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+          progress += Math.random() * 8 + 2; // Slower increments 2-10%
+          if (progress < 90) { // Don't go above 90% until API responds
+            setMigrationProgress(progress);
+          }
+        }, 400);
+        
+        try {
+          // Make API call for this specific database
+          const res = await fetch("/api/migrate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+              sourceUri, 
+              destinationUri, 
+              selectedDbs: [currentDb] // Only migrate current database
+            }),
+          });
+          
+          clearInterval(progressInterval);
+          const data = await res.json();
+          
+          if (res.ok || res.status === 207) {
+            // Complete progress for this database
+            setMigrationProgress(100);
+            
+            // Add results from this database
+            if (data.results) {
+              allResults.push(...data.results);
+            }
+            
+            // Wait a moment to show 100% completion
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            // Mark this database as completed
+            setCompletedDatabases(i + 1);
+            
+            if (data.partialSuccess) {
+              setError(`Warning: ${data.error}`);
+            }
+          } else {
+            clearInterval(progressInterval);
+            throw new Error(data.error);
+          }
+        } catch (dbError) {
+          clearInterval(progressInterval);
+          throw dbError;
         }
-      } else {
-        throw new Error(data.error);
       }
+      
+      // All databases completed
+      setCurrentDatabase("");
+      setResults({
+        results: allResults,
+        sourceDb: selectedDbsArray.join(', '),
+        destDb: selectedDbsArray.join(', ')
+      });
+      setStep("done");
+      
     } catch (e: unknown) {
+      setMigrationProgress(0);
+      setCurrentDatabase("");
+      setCompletedDatabases(0);
+      
       const errorMessage = e instanceof Error ? e.message : "Migration failed.";
       if (errorMessage.includes('fetch') || errorMessage.includes('network') || errorMessage.includes('timeout')) {
         setError(`${errorMessage} - Migration may have completed successfully. Please check your destination cluster.`);
@@ -139,6 +219,7 @@ export default function Home() {
   function reset() {
     setStep("idle"); setResults(null); setPreview(null);
     setSourceUri(""); setDestinationUri(""); setSelectedDbs(new Set()); setError(null); setExistingDbs([]);
+    setMigrationProgress(0); setCurrentDatabase(""); setCompletedDatabases(0);
   }
 
   function migrateMore() {
@@ -150,6 +231,7 @@ export default function Home() {
     }
     setResults(null);
     setExistingDbs([]);
+    setMigrationProgress(0); setCurrentDatabase(""); setCompletedDatabases(0);
     setStep("previewed");
   }
 
@@ -166,9 +248,17 @@ export default function Home() {
           <BeforeMigrationSidebar />
         </div>
 
-        <div className="min-h-0 max-h-screen overflow-y-auto pr-2 space-y-4 main-content-scrollbar">
+        <div className="space-y-4">
           <HeroSection />
           <StepIndicator step={step} />
+          
+          <MigrationProgress 
+            step={step} 
+            progress={migrationProgress}
+            currentDatabase={currentDatabase}
+            totalDatabases={selectedDbs.size}
+            completedDatabases={completedDatabases}
+          />
 
           <ConnectionForm
             sourceUri={sourceUri}
@@ -192,6 +282,7 @@ export default function Home() {
               totalDocs={totalDocs}
               handleMigrate={handleMigrate}
               preview={preview}
+              isSameCluster={isSameCluster}
             />
           </ConnectionForm>
 
@@ -208,8 +299,6 @@ export default function Home() {
             checkExistingDbs={checkExistingDbs}
             existingDbs={existingDbs}
           />
-
-          <MigrationProgress step={step} />
 
           <MigrationResults
             step={step}
