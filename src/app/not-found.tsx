@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, Database, AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import { Navbar } from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function NotFound() {
   return (
@@ -68,11 +69,7 @@ export default function NotFound() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-[#21262d] px-6 py-4 text-center">
-        <p className="text-xs text-[#4a5568]">
-          MongoDBMigrate • Secure MongoDB Migration Tool
-        </p>
-      </footer>
+      <Footer />
     </div>
   );
 }
