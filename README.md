@@ -68,7 +68,7 @@ Push to GitHub and import the repo on [vercel.com](https://vercel.com). Vercel a
 
 ## Changelog
 
-### v1.3 — Preview & Bug Fixes
+### v1.4 — Preview & Bug Fixes
 - Fixed duplicate key warnings in database list
 - Fixed crash when `docs` field was undefined on stale state
 - Preview now shows database-level summary only (no internal collections)

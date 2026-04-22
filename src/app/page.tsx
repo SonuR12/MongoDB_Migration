@@ -13,6 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Navbar } from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 type ColPreview = { name: string; collections: number; docs: number };
 type ColResult = { collection: string; docsMigrated: number };
@@ -117,7 +118,6 @@ export default function Home() {
 
   const allSelected = preview ? selectedDbs.size === preview.collections.length && preview.collections.length > 0 : false;
   const totalDocs = results?.results.reduce((s, r) => s + r.docsMigrated, 0) ?? 0;
-  const totalPreviewDocs = preview?.collections.filter(c => selectedDbs.has(c.name)).reduce((s, c) => s + (c.docs ?? 0), 0) ?? 0;
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-white font-sans">
@@ -389,6 +389,7 @@ export default function Home() {
         </div>
         <AfterMigrationSidebar />
       </main>
+      <Footer />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MongoClient } from "mongodb";
 
-export const maxDuration = 30;
+export const maxDuration = 60;
 
 function extractDbName(uri: string): string | null {
   try {
@@ -23,7 +23,11 @@ export async function POST(req: NextRequest) {
   let client: MongoClient | null = null;
 
   try {
-    client = new MongoClient(sourceUri);
+    client = new MongoClient(sourceUri, {
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
     await client.connect();
 
     // If no DB name in URI, list all databases and collect all collections
@@ -37,15 +41,40 @@ export async function POST(req: NextRequest) {
 
     const allDatabases: { name: string; collections: number; docs: number }[] = [];
 
-    for (const db of dbList) {
-      const database = client.db(db);
+    // Process databases in parallel with limited concurrency
+    const processDatabase = async (db: string) => {
+      const database = client!.db(db);
       const collections = await database.listCollections().toArray();
       const filtered = collections.filter((c) => !c.name.startsWith('system.'));
+      
+      // Use estimatedDocumentCount for better performance
       let docs = 0;
-      for (const col of filtered) {
-        docs += await database.collection(col.name).countDocuments();
-      }
-      allDatabases.push({ name: db, collections: filtered.length, docs });
+      const docCountPromises = filtered.map(async (col) => {
+        try {
+          // estimatedDocumentCount is much faster than countDocuments
+          return await database.collection(col.name).estimatedDocumentCount();
+        } catch {
+          // Fallback to countDocuments if estimatedDocumentCount fails
+          try {
+            return await database.collection(col.name).countDocuments({}, { maxTimeMS: 10000 });
+          } catch {
+            return 0; // If both fail, return 0
+          }
+        }
+      });
+      
+      const docCounts = await Promise.all(docCountPromises);
+      docs = docCounts.reduce((sum, count) => sum + count, 0);
+      
+      return { name: db, collections: filtered.length, docs };
+    };
+
+    // Process up to 3 databases concurrently
+    const batchSize = 3;
+    for (let i = 0; i < dbList.length; i += batchSize) {
+      const batch = dbList.slice(i, i + batchSize);
+      const results = await Promise.all(batch.map(processDatabase));
+      allDatabases.push(...results);
     }
 
     return NextResponse.json({ success: true, dbName: dbList.join(', '), collections: allDatabases });
