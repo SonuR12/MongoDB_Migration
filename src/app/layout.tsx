@@ -54,10 +54,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'your-google-verification-code-here',
-  },
-  other: {
-    'google-site-verification': 'your-google-verification-code-here',
+    google: process.env.GOOGLE_SITE_VERIFICATION,
   },
   icons: {
     icon: [
