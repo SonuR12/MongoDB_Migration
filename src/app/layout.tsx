@@ -25,14 +25,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://mongodbmigrate.vercel.app'),
+  metadataBase: new URL('https://mongodb-migrate.vercel.app'),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     title: "MongoDBMigrate — MongoDB Migration Tool",
     description: "Migrate MongoDB data between clusters without terminal commands. No mongodump, no mongorestore. Secure, fast, and selective database migration.",
-    url: 'https://mongodbmigrate.vercel.app',
+    url: 'https://mongodb-migrate.vercel.app',
     siteName: 'MongoDBMigrate',
     locale: 'en_US',
     type: 'website',
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: process.env.GOOGLE_SITE_VERIFICATION,
+    google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
   },
   icons: {
     icon: [
