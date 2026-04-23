@@ -21,7 +21,7 @@ export default function Footer() {
 
             <div className="flex items-center gap-4">
               <Link
-                href="https://www.linkedin.com/in/sonu-rai-r12/"
+                href={process.env.NEXT_PUBLIC_LINKEDIN_URL!}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
@@ -31,7 +31,7 @@ export default function Footer() {
               </Link>
 
               <Link
-                href="https://github.com/SonuR12"
+                href={process.env.NEXT_PUBLIC_GITHUB_URL!}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"

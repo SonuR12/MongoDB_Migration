@@ -5,7 +5,7 @@ import Link from "next/link";
 import { BsLinkedin } from "react-icons/bs";
 import { RxGithubLogo } from "react-icons/rx";
 
-export function Navbar() {
+export function Navbar({ visitorCount }: { visitorCount?: number | string | null }) {
   return (
     <nav className="border-b border-[#21262d]">
       <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
@@ -18,8 +18,14 @@ export function Navbar() {
           <div className="flex flex-col sm:flex-row items-center gap-3">
 
             <div className="flex items-center gap-4">
+               {visitorCount && (typeof visitorCount === "string" || visitorCount > 0) && (
+            <div className="inline-flex items-center gap-2 text-xs text-[#8a9bb0]">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+              {typeof visitorCount === "string" ? visitorCount : visitorCount > 2147483647 ? `${visitorCount.toLocaleString()}+` : visitorCount.toLocaleString()} visitors
+            </div>
+          )}
               <Link
-                href="https://www.linkedin.com/in/sonu-rai-r12/"
+                href={process.env.NEXT_PUBLIC_LINKEDIN_URL!}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
@@ -29,7 +35,7 @@ export function Navbar() {
               </Link>
 
               <Link
-                href="https://github.com/SonuR12"
+                href={process.env.NEXT_PUBLIC_GITHUB_URL!}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
