@@ -1,6 +1,6 @@
-export function AfterMigrationSidebar() {
+export function AfterMigrationSidebar({ className = "" }: { className?: string }) {
   return (
-    <aside className="hidden lg:flex flex-col gap-4 pt-2">
+    <aside className={`flex flex-col gap-4 pt-2 ${className}`}>
       <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-5">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-2 h-2 rounded-full bg-[#00ED64] animate-pulse" />

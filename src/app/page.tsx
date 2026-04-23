@@ -243,76 +243,86 @@ export default function Home() {
       <DisclaimerDialog open={showDisclaimer} onAccept={acceptDisclaimer} onClose={() => setShowDisclaimer(false)} />
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-[260px_1fr_260px] gap-6 min-h-screen">
-        <div className="sticky top-20 h-fit">
-          <BeforeMigrationSidebar />
-        </div>
+      <main className="max-w-7xl mx-auto px-4 py-10">
 
-        <div className="space-y-4">
-          <HeroSection />
-          <StepIndicator step={step} />
-          
-          <MigrationProgress 
-            step={step} 
-            progress={migrationProgress}
-            currentDatabase={currentDatabase}
-            totalDatabases={selectedDbs.size}
-            completedDatabases={completedDatabases}
-          />
+        <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr_260px] gap-6">
 
-          <ConnectionForm
-            sourceUri={sourceUri}
-            setSourceUri={setSourceUri}
-            destinationUri={destinationUri}
-            setDestinationUri={setDestinationUri}
-            step={step}
-            preview={preview}
-            handlePreview={handlePreview}
-            setStep={setStep}
-            setPreview={setPreview}
-            setSelectedDbs={setSelectedDbs}
-            setError={setError}
-          >
-            <MigrateButton
+          {/* Left sidebar — desktop only */}
+          <BeforeMigrationSidebar className="hidden lg:flex sticky top-20 h-fit" />
+
+          {/* Main content */}
+          <div className="space-y-4">
+            <HeroSection />
+            <StepIndicator step={step} />
+
+            <ConnectionForm
               sourceUri={sourceUri}
+              setSourceUri={setSourceUri}
               destinationUri={destinationUri}
+              setDestinationUri={setDestinationUri}
+              step={step}
+              preview={preview}
+              handlePreview={handlePreview}
+              setStep={setStep}
+              setPreview={setPreview}
+              setSelectedDbs={setSelectedDbs}
+              setError={setError}
+            >
+              <MigrateButton
+                sourceUri={sourceUri}
+                destinationUri={destinationUri}
+                step={step}
+                selectedDbs={selectedDbs}
+                results={results}
+                totalDocs={totalDocs}
+                handleMigrate={handleMigrate}
+                preview={preview}
+                // isSameCluster={isSameCluster}
+              />
+            </ConnectionForm>
+
+            {error && <ErrorDisplay error={error} />}
+
+<MigrationProgress
+              step={step}
+              progress={migrationProgress}
+              currentDatabase={currentDatabase}
+              totalDatabases={selectedDbs.size}
+              completedDatabases={completedDatabases}
+            />
+
+            <DatabaseSelection
+              preview={preview}
               step={step}
               selectedDbs={selectedDbs}
+              allSelected={allSelected}
+              toggleAll={toggleAll}
+              toggleDb={toggleDb}
+              destinationUri={destinationUri}
+              checkExistingDbs={checkExistingDbs}
+              existingDbs={existingDbs}
+            />
+
+            <MigrationResults
+              step={step}
               results={results}
               totalDocs={totalDocs}
-              handleMigrate={handleMigrate}
-              preview={preview}
-              isSameCluster={isSameCluster}
+              migrateMore={migrateMore}
+              reset={reset}
             />
-          </ConnectionForm>
 
-          {error && <ErrorDisplay error={error} />}
+            {step === "idle" && <InfoCards />}
 
-          <DatabaseSelection
-            preview={preview}
-            step={step}
-            selectedDbs={selectedDbs}
-            allSelected={allSelected}
-            toggleAll={toggleAll}
-            toggleDb={toggleDb}
-            destinationUri={destinationUri}
-            checkExistingDbs={checkExistingDbs}
-            existingDbs={existingDbs}
-          />
+            {/* < 620px: sidebars stacked at bottom */}
+            <div className="flex lg:hidden flex-col gap-4 mt-4">
+              <BeforeMigrationSidebar />
+              <AfterMigrationSidebar />
+            </div>
+          </div>
 
-          <MigrationResults
-            step={step}
-            results={results}
-            totalDocs={totalDocs}
-            migrateMore={migrateMore}
-            reset={reset}
-          />
+          {/* Right sidebar — desktop only */}
+          <AfterMigrationSidebar className="hidden lg:flex sticky top-20 h-fit" />
 
-          {step === "idle" && <InfoCards />}
-        </div>
-        
-        <div className="sticky top-20 h-fit">
-          <AfterMigrationSidebar />
         </div>
       </main>
       <Footer />
