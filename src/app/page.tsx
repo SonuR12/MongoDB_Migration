@@ -38,6 +38,7 @@ export default function Home() {
   const [currentDatabase, setCurrentDatabase] = useState<string>("");
   const [completedDatabases, setCompletedDatabases] = useState(0);
 
+  const [visitorCount, setVisitorCount] = useState<number | string | null>(null);
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   
   // Check if same cluster
@@ -48,6 +49,15 @@ export default function Home() {
   useEffect(() => {
     const seen = sessionStorage.getItem("disclaimer_seen");
     if (!seen) setShowDisclaimer(true);
+  }, []);
+
+  useEffect(() => {
+    const visited = sessionStorage.getItem("visited");
+    if (!visited) {
+      fetch("/api/visitors?increment=true").then(r => r.json()).then(d => { setVisitorCount(d.count); sessionStorage.setItem("visited", "true"); }).catch(() => {});
+    } else {
+      fetch("/api/visitors").then(r => r.json()).then(d => setVisitorCount(d.count)).catch(() => {});
+    }
   }, []);
 
   function acceptDisclaimer() {
@@ -241,7 +251,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#0d1117] text-white font-sans">
       <DisclaimerDialog open={showDisclaimer} onAccept={acceptDisclaimer} onClose={() => setShowDisclaimer(false)} />
-      <Navbar />
+      <Navbar visitorCount={visitorCount} />
 
       <main className="max-w-7xl mx-auto px-4 py-10">
 
