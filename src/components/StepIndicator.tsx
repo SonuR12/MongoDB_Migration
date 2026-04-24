@@ -10,7 +10,7 @@ export function StepIndicator({ step }: StepIndicatorProps) {
   const stepIndex = { idle: 0, previewing: 0, previewed: 1, migrating: 2, done: 3 }[step];
 
   return (
-    <div className="flex items-center justify-center gap-0 mb-10 select-none">
+    <div className="flex items-center justify-center gap-0 mb-5 select-none">
       {STEPS.map((s, i) => (
         <div key={s} className="flex items-center">
           <div className="flex flex-col items-center gap-1">
@@ -27,7 +27,7 @@ export function StepIndicator({ step }: StepIndicatorProps) {
             <span className={`text-[10px] ${i <= stepIndex ? "text-[#00ED64]" : "text-[#4a5568]"}`}>{s}</span>
           </div>
           {i < STEPS.length - 1 && (
-            <div className={`w-16 h-px mx-1 mb-4 transition-all ${i < stepIndex ? "bg-[#00ED64]" : "bg-[#30363d]"}`} />
+            <div className={`w-[8vw] sm:w-[5vw] h-px mx-1 mb-4 transition-all ${i < stepIndex ? "bg-[#00ED64]" : "bg-[#30363d]"}`} />
           )}
         </div>
       ))}
