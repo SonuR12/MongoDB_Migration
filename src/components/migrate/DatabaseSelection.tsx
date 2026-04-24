@@ -60,7 +60,7 @@ export function DatabaseSelection({
       {/* Select All */}
       <div
         onClick={toggleAll}
-        className="flex items-center justify-between px-6 py-3 bg-[#0d1117] border-b border-[#21262d] cursor-pointer hover:bg-[#1c2128] transition-colors group"
+        className="flex items-center justify-between px-4 sm:px-6 py-3 bg-[#0d1117] border-b border-[#21262d] cursor-pointer hover:bg-[#1c2128] transition-colors group"
       >
         <div className="flex items-center gap-3">
           {allSelected
@@ -78,7 +78,12 @@ export function DatabaseSelection({
 
       {/* DB List */}
       <div className="divide-y divide-[#21262d] max-h-72 overflow-y-auto database-list-scrollbar">
-        {preview.collections.map((db, i) => {
+        {preview.collections.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 gap-2 text-[#4a5568]">
+            <Database size={32} className="opacity-40" />
+            <p className="text-sm">No databases found on this cluster</p>
+          </div>
+        ) : preview.collections.map((db, i) => {
           const checked = selectedDbs.has(db.name);
           const exists = db.existsInDestination;
           return (

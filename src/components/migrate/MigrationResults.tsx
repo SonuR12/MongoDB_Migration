@@ -97,10 +97,10 @@ export function MigrationResults({
             <p className="text-xs text-red-300 mb-2">
               Don't forget to <span className="text-white font-semibold">remove 0.0.0.0/0</span> from your MongoDB Atlas Network Access settings on both clusters!
             </p>
-            <div className="flex items-center gap-2">
-              <Shield size={12} className="text-blue-400" />
-              <p className="text-xs text-[#8a9bb0]">
-                Go to Atlas → Network Access → Delete the 0.0.0.0/0 entry → Add your trusted IPs only
+            <div className="flex items-start text-center gap-2">
+              <Shield size={12} className="text-blue-400 h-5 w-5 sm:h-3 sm:w-3" />
+              <p className="text-xs text-center text-[#8a9bb0] mt-1 min-[640px]:mt-0">
+                Go to Atlas &rarr; Network Access &rarr; Delete the 0.0.0.0/0 entry &rarr; Add your trusted IPs only
               </p>
             </div>
           </div>

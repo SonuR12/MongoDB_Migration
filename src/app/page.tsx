@@ -379,7 +379,7 @@ export default function Home() {
                 totalDocs={totalDocs}
                 handleMigrate={handleMigrate}
                 preview={preview}
-                // isSameCluster={isSameCluster}
+                isSameCluster={isSameCluster}
               />
             </ConnectionForm>
 
