@@ -18,18 +18,19 @@ const geistMono = Geist_Mono({
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://mongodb-migrate.vercel.app';
 const siteName = process.env.NEXT_PUBLIC_SITE_NAME || 'MongoDBMigrate';
-const siteDescription = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'Migrate MongoDB data between clusters without terminal commands. No mongodump, no mongorestore. Secure, fast, and selective database migration.';
+const siteDescription = process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'MongoDB Migration Tool, made for developers. No mongodump, no mongorestore. Secure, fast, and selective database migration.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'MongoDBMigrate — MongoDB Migration Tool',
+    default: 'MongoDBMigrate: MongoDB Migration Tool, made for developers',
     template: `%s | ${siteName}`,
   },
-  description: 'Migrate MongoDB data between clusters without terminal commands. No mongodump, no mongorestore. Secure, fast, and selective database migration.',
+  description: 'MongoDB Migration Tool, made for developers. No mongodump, no mongorestore. Secure, fast, and selective database migration.',
   applicationName: 'MongoDBMigrate',
   keywords: [
-    'MongoDB',
+    'MongoDB Migration Tool',
+    'MongoDB Migration',
     'migration',
     'database',
     'mongodump',
@@ -66,8 +67,8 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: siteUrl,
     siteName,
-    title: 'MongoDBMigrate — MongoDB Migration Tool',
-    description: 'Migrate MongoDB data between clusters without terminal commands. No mongodump, no mongorestore. Secure, fast, and selective database migration.',
+    title: 'MongoDBMigrate: MongoDB Migration Tool, made for developers',
+    description: 'MongoDB Migration Tool, made for developers. No mongodump, no mongorestore. Secure, fast, and selective database migration.',
     images: [
       {
         url: `${siteUrl}/og-image.jpg`,
@@ -79,8 +80,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'MongoDBMigrate — MongoDB Migration Tool',
-    description: 'Migrate MongoDB data between clusters without terminal commands. No mongodump, no mongorestore. Secure, fast, and selective database migration.',
+    title: 'MongoDBMigrate: MongoDB Migration Tool, made for developers',
+    description: 'MongoDB Migration Tool, made for developers. No mongodump, no mongorestore. Secure, fast, and selective database migration.',
     images: [`${siteUrl}/og-image.jpg`],
   },
   verification: {

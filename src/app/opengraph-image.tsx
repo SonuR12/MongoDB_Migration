@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og'
  
 export const runtime = 'edge'
  
-export const alt = 'MongoDBMigrate - MongoDB Migration Tool'
+export const alt = 'MongoDBMigrate: MongoDB Migration Tool, made for developers'
 export const size = {
   width: 1200,
   height: 630,
@@ -66,12 +66,13 @@ export default async function Image() {
         <div
           style={{
             color: '#8a9bb0',
-            fontSize: '32px',
+            fontSize: '28px',
             textAlign: 'center',
             maxWidth: '800px',
+            lineHeight: '1.4',
           }}
         >
-          Migrate MongoDB data between clusters without terminal commands
+          MongoDB Migration Tool, made for developers
         </div>
         <div
           style={{
