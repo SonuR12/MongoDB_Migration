@@ -1,7 +1,10 @@
+"use client";
+
 import { Eye } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Spinner } from "@/components/Spinner";
+import { useEffect, useRef } from "react";
 
 type Step = "idle" | "previewing" | "previewed" | "migrating" | "done";
 
@@ -48,6 +51,18 @@ export function ConnectionForm({
   const sourceHost = extractClusterHost(sourceUri.trim());
   const destHost = extractClusterHost(destinationUri.trim());
   const isSameCluster = sourceHost && destHost && sourceHost === destHost && sourceUri.trim() && destinationUri.trim();
+
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const isValid = sourceUri.trim().startsWith("mongodb") && sourceUri.includes("@");
+    if (!isValid || step !== "idle") return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      handlePreview();
+    }, 800);
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
+  }, [sourceUri]);
   return (
     <div className="bg-[#161b22] border border-[#30363d] rounded-2xl overflow-hidden shadow-2xl mb-4">
       {/* Source */}
@@ -96,7 +111,7 @@ export function ConnectionForm({
           <button
             onClick={handlePreview}
             disabled={!sourceUri || step === "previewing" || step === "migrating"}
-            className="px-5 py-3 bg-[#21262d] border border-[#30363d] rounded-lg text-xs text-[#00ED64] font-semibold whitespace-nowrap flex items-center gap-2 enabled:hover:bg-[#30363d] transition-colors disabled:opacity-40 disabled:pointer-events-none"
+            className="px-5 py-3 bg-[#21262d] border border-[#30363d] rounded-lg text-xs text-[#00ED64] hover:cursor-pointer font-semibold whitespace-nowrap flex items-center gap-2 enabled:hover:bg-[#30363d] transition-colors disabled:opacity-40 disabled:pointer-events-none"
           >
             {step === "previewing" ? <><Spinner /> Connecting...</> : <><Eye size={13} /> Preview</>}
           </button>

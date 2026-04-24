@@ -185,9 +185,9 @@ export default function Home() {
         // Simulate progress while making the actual API call
         let progress = 0;
         const progressInterval = setInterval(() => {
-          progress += Math.random() * 8 + 2; // Slower increments 2-10%
-          if (progress < 90) {
-            // Don't go above 90% until API responds
+          progress += Math.random() * 2 + 0.5; // Very slow increments 0.5-2.5%
+          if (progress < 15) {
+            // Cap at 15% until API responds
             setMigrationProgress(progress);
           }
         }, 400);
