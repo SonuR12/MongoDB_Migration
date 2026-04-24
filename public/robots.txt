@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mongodbmigrate.vercel.app/sitemap.xml
+Sitemap: https://mongodb-migrate.vercel.app/sitemap.xml
